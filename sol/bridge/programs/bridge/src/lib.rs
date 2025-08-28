@@ -1,4 +1,5 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token_interface::Burn;
 use anchor_spl::token_interface::MintTo;
 
 pub mod instructions;
@@ -33,6 +34,23 @@ pub mod bridge {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_context = CpiContext::new(cpi_program, cpi_accounts).with_signer(signer_seeds);
         token_interface::mint_to(cpi_context, amount)?;
+        Ok(())
+    }
+
+    pub fn burn_from_address(ctx: Context<BurnTokenFromAddress>, amount: u64) -> Result<()> {
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            b"mint",
+            ctx.accounts.signer.key.as_ref(),
+            &[ctx.accounts.data_account.bump_mint],
+        ]];
+        let cpi_accounts = Burn {
+            mint: ctx.accounts.mint.to_account_info(),
+            from: ctx.accounts.token_account.to_account_info(),
+            authority: ctx.accounts.signer.to_account_info(),
+        };
+        let cpi_program = ctx.accounts.token_program.to_account_info();
+        let cpi_context = CpiContext::new(cpi_program, cpi_accounts).with_signer(signer_seeds);
+        token_interface::burn(cpi_context, amount)?;
         Ok(())
     }
 }

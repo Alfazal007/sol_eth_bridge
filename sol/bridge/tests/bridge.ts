@@ -1,7 +1,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import { Bridge } from "../target/types/bridge";
-import { getMint, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { getAccount, getAssociatedTokenAddress, getMint, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { assert } from "chai";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
@@ -55,5 +55,27 @@ describe("bridge", () => {
             TOKEN_2022_PROGRAM_ID
         );
         assert(Number(mintInfo.supply) == 550)
+        const userAta = await getAssociatedTokenAddress(mintPda, provider.wallet.publicKey, true, TOKEN_2022_PROGRAM_ID);
+        const userTokenAccount = await getAccount(
+            provider.connection,
+            userAta,
+            "confirmed",
+            TOKEN_2022_PROGRAM_ID
+        );
+        assert(Number(userTokenAccount.amount) === 550);
+    })
+
+    it("Burn some tokens", async () => {
+        let tx = await program.methods.burnFromAddress(new anchor.BN(50)).accounts({
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
+        }).rpc()
+        await connection.confirmTransaction(tx, "confirmed")
+        let mintInfo = await getMint(
+            provider.connection,
+            mintPda,
+            "confirmed",
+            TOKEN_2022_PROGRAM_ID
+        );
+        assert(Number(mintInfo.supply) == 500)
     })
 })
