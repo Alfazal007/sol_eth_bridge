@@ -22,7 +22,7 @@ pub struct InitializeMintAccount<'info> {
     #[account(
         init,
         payer = signer,
-        space = 8 + 1 + 1,
+        space = 8 + 1 + 1 + 32,
         seeds = [b"data_account456"],
         bump
     )]

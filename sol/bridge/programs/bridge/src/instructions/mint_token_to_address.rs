@@ -10,11 +10,12 @@ use crate::DataAccount;
 pub struct MintTokenToAddress<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
+    pub recipient: SystemAccount<'info>,
     #[account(
         init_if_needed,
         payer = signer,
         associated_token::mint = mint,
-        associated_token::authority = signer,
+        associated_token::authority = recipient,
         associated_token::token_program = token_program,
     )]
     pub token_account: InterfaceAccount<'info, TokenAccount>,

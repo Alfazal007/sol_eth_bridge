@@ -46,6 +46,7 @@ describe("bridge", () => {
     it("Mint some tokens", async () => {
         let tx = await program.methods.mintToAddress(new anchor.BN(550)).accounts({
             tokenProgram: TOKEN_2022_PROGRAM_ID,
+            recipient: secondUser.publicKey
         }).rpc()
         await connection.confirmTransaction(tx, "confirmed")
         let mintInfo = await getMint(
@@ -55,7 +56,7 @@ describe("bridge", () => {
             TOKEN_2022_PROGRAM_ID
         );
         assert(Number(mintInfo.supply) == 550)
-        const userAta = await getAssociatedTokenAddress(mintPda, provider.wallet.publicKey, true, TOKEN_2022_PROGRAM_ID);
+        const userAta = await getAssociatedTokenAddress(mintPda, secondUser.publicKey, true, TOKEN_2022_PROGRAM_ID);
         const userTokenAccount = await getAccount(
             provider.connection,
             userAta,
@@ -68,7 +69,8 @@ describe("bridge", () => {
     it("Burn some tokens", async () => {
         let tx = await program.methods.burnFromAddress(new anchor.BN(50)).accounts({
             tokenProgram: TOKEN_2022_PROGRAM_ID,
-        }).rpc()
+            signer: secondUser.publicKey
+        }).signers([secondUser]).rpc()
         await connection.confirmTransaction(tx, "confirmed")
         let mintInfo = await getMint(
             provider.connection,

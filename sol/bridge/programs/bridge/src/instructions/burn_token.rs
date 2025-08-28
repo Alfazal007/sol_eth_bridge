@@ -19,7 +19,7 @@ pub struct BurnTokenFromAddress<'info> {
     pub token_account: InterfaceAccount<'info, TokenAccount>,
     #[account(
         mut,
-        seeds = [b"mint",signer.key().as_ref()],
+        seeds = [b"mint",data_account.owner.key().as_ref()],
         bump=data_account.bump_mint
     )]
     pub mint: InterfaceAccount<'info, Mint>,

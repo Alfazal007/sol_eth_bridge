@@ -14,7 +14,6 @@ contract LockContract is Ownable {
     uint256 public totalAmount;
     IERC20 tokenAccount;
 
-
     constructor(address _newOwner, address _tokenAccount) Ownable(_newOwner) {
         totalAmount = 0;
         tokenAccount = IERC20(_tokenAccount);

@@ -17,6 +17,7 @@ pub mod bridge {
     pub fn initialize(ctx: Context<InitializeMintAccount>) -> Result<()> {
         ctx.accounts.data_account.bump_mint = ctx.bumps.mint;
         ctx.accounts.data_account.bump_data_account = ctx.bumps.data_account;
+        ctx.accounts.data_account.owner = *ctx.accounts.signer.key;
         Ok(())
     }
 
@@ -40,7 +41,7 @@ pub mod bridge {
     pub fn burn_from_address(ctx: Context<BurnTokenFromAddress>, amount: u64) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[
             b"mint",
-            ctx.accounts.signer.key.as_ref(),
+            ctx.accounts.data_account.owner.as_ref(),
             &[ctx.accounts.data_account.bump_mint],
         ]];
         let cpi_accounts = Burn {
@@ -51,6 +52,7 @@ pub mod bridge {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_context = CpiContext::new(cpi_program, cpi_accounts).with_signer(signer_seeds);
         token_interface::burn(cpi_context, amount)?;
+        // TODO:: emit an event
         Ok(())
     }
 }
