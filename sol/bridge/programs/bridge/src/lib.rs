@@ -5,6 +5,9 @@ use anchor_spl::token_interface::MintTo;
 pub mod instructions;
 pub use instructions::*;
 
+pub mod events;
+pub use events::*;
+
 declare_id!("FuRZXPZZEhdtgtNw2m5aHgmjRxHJEExv688maA3sGb8p");
 
 #[program]
@@ -38,7 +41,11 @@ pub mod bridge {
         Ok(())
     }
 
-    pub fn burn_from_address(ctx: Context<BurnTokenFromAddress>, amount: u64) -> Result<()> {
+    pub fn burn_from_address(
+        ctx: Context<BurnTokenFromAddress>,
+        amount: u64,
+        eth_address: String,
+    ) -> Result<()> {
         let signer_seeds: &[&[&[u8]]] = &[&[
             b"mint",
             ctx.accounts.data_account.owner.as_ref(),
@@ -52,7 +59,11 @@ pub mod bridge {
         let cpi_program = ctx.accounts.token_program.to_account_info();
         let cpi_context = CpiContext::new(cpi_program, cpi_accounts).with_signer(signer_seeds);
         token_interface::burn(cpi_context, amount)?;
-        // TODO:: emit an event
+        emit!(BurnEvent {
+            burner: *ctx.accounts.signer.key,
+            amount,
+            eth_address
+        });
         Ok(())
     }
 }

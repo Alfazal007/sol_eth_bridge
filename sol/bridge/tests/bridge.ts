@@ -67,7 +67,7 @@ describe("bridge", () => {
     })
 
     it("Burn some tokens", async () => {
-        let tx = await program.methods.burnFromAddress(new anchor.BN(50)).accounts({
+        let tx = await program.methods.burnFromAddress(new anchor.BN(50), "0x1eDc529e7C06856089BDf212CCd7A03d3da8dA7e").accounts({
             tokenProgram: TOKEN_2022_PROGRAM_ID,
             signer: secondUser.publicKey
         }).signers([secondUser]).rpc()
@@ -79,5 +79,20 @@ describe("bridge", () => {
             TOKEN_2022_PROGRAM_ID
         );
         assert(Number(mintInfo.supply) == 500)
+        const parsedTx = await connection.getTransaction(tx, {
+            commitment: "confirmed",
+            maxSupportedTransactionVersion: 0,
+        });
+        const eventParser = new anchor.EventParser(program.programId, program.coder);
+        let burnEvent: any = null;
+        for (const evt of eventParser.parseLogs(parsedTx.meta.logMessages ?? [])) {
+            if (evt.name === "burnEvent") {
+                burnEvent = evt.data;
+            }
+        }
+        assert.ok(burnEvent !== null, "BurnEvent not found in logs");
+        assert.equal(burnEvent.amount.toNumber(), 50);
+        assert.equal(burnEvent.burner.toString(), secondUser.publicKey.toString());
+        assert.equal(burnEvent.ethAddress, "0x1eDc529e7C06856089BDf212CCd7A03d3da8dA7e");
     })
 })
