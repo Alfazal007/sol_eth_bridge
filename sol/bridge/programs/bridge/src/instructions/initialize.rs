@@ -10,7 +10,7 @@ pub struct InitializeMintAccount<'info> {
     #[account(
         init,
         payer = signer,
-        mint::decimals = 6,
+        mint::decimals = 18, // to match eth token asset
         mint::authority = mint.key(),
         mint::freeze_authority = mint.key(),
         seeds = [b"mint",signer.key().as_ref()],

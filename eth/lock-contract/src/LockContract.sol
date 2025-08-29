@@ -24,6 +24,7 @@ contract LockContract is Ownable {
         uint256 _amount,
         string memory _receiver_address
     ) public {
+        require(_amount > 0, "amount should be greater than 0");
         require(
             tokenAccount.allowance(msg.sender, address(this)) >= _amount,
             "allowance not provided"
@@ -34,9 +35,10 @@ contract LockContract is Ownable {
     }
 
     // nodejs calls this after solana tokens have gotten burnt
-    function unlock(uint256 amount, address to) public onlyOwner {
-        require(totalAmount >= amount, "amount too big");
-        require(tokenAccount.transfer(to, amount), "issue while transferring");
-        totalAmount -= amount;
+    function unlock(uint256 _amount, address to) public onlyOwner {
+        require(_amount > 0, "amount should be greater than 0");
+        require(totalAmount >= _amount, "amount too big");
+        require(tokenAccount.transfer(to, _amount), "issue while transferring");
+        totalAmount -= _amount;
     }
 }

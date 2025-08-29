@@ -6,8 +6,8 @@ import {Ownable} from "../node_modules/@openzeppelin/contracts/access/Ownable.so
 
 contract BridgedTokenContract is ERC20, Ownable {
     constructor(
-        address mintTokenAccount
-    ) ERC20("bridgedtoken", "BRIDGEDTOKEN") Ownable(msg.sender) {}
+        address mintBurnAddress
+    ) ERC20("bridgedtoken", "BRIDGEDTOKEN") Ownable(mintBurnAddress) {}
 
     function mint(uint256 _amount, address to) external onlyOwner {
         _mint(to, _amount);
