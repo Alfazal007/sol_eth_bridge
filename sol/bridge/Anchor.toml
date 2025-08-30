@@ -7,6 +7,7 @@ skip-lint = false
 
 [programs.localnet]
 bridge = "FuRZXPZZEhdtgtNw2m5aHgmjRxHJEExv688maA3sGb8p"
+lock_and_unlock = "965BxygGCearNwucNBTsnhNVTa6SGhKtwNoopbtGQjQp"
 
 [registry]
 url = "https://api.apr.dev"
