@@ -1,7 +1,8 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { Bridge } from "../target/types/bridge";
-import { getAccount, getAssociatedTokenAddress, getMint, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { Bridge, } from "../target/types/bridge";
+import { LockAndUnlock } from "../target/types/lock_and_unlock";
+import { createMint, getAccount, getAssociatedTokenAddress, getMint, TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { assert } from "chai";
 import { Keypair, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
@@ -9,6 +10,7 @@ const provider = anchor.AnchorProvider.env();
 anchor.setProvider(provider);
 
 let secondUser = Keypair.generate()
+let randomUser = Keypair.generate()
 const program = anchor.workspace.bridge as Program<Bridge>;
 const signer = provider.wallet.publicKey;
 let mintPda: anchor.web3.PublicKey;
@@ -23,6 +25,9 @@ describe("bridge", () => {
         )
         const tx = await connection.requestAirdrop(secondUser.publicKey, 5 * LAMPORTS_PER_SOL)
         await connection.confirmTransaction(tx, "confirmed")
+        const tx1 = await connection.requestAirdrop(randomUser.publicKey, 5 * LAMPORTS_PER_SOL)
+        await connection.confirmTransaction(tx1, "confirmed")
+
     })
 
     it("Initializes the mint!", async () => {
@@ -95,4 +100,5 @@ describe("bridge", () => {
         assert.equal(burnEvent.burner.toString(), secondUser.publicKey.toString());
         assert.equal(burnEvent.ethAddress, "0x1eDc529e7C06856089BDf212CCd7A03d3da8dA7e");
     })
+
 })

@@ -11,10 +11,12 @@ pub struct Unlock<'info> {
     #[account(mut)]
     pub signer: Signer<'info>,
     #[account(
-        seeds = [b"token_account", signer.key().as_ref()],
-        bump
+        mut,
+        associated_token::mint = mint,
+        associated_token::authority = pool_authority,
+        associated_token::token_program = token_program,
     )]
-    pub token_account_which_locks_tokens: InterfaceAccount<'info, TokenAccount>, // receiver account
+    pub token_account_which_locks_tokens: InterfaceAccount<'info, TokenAccount>,
     pub mint: InterfaceAccount<'info, Mint>,
     pub token_program: Interface<'info, TokenInterface>,
     pub system_program: Program<'info, System>,
@@ -33,4 +35,9 @@ pub struct Unlock<'info> {
     pub recipient_token_account: InterfaceAccount<'info, TokenAccount>,
     pub reciver_solana_account: SystemAccount<'info>,
     pub associated_token_program: Program<'info, AssociatedToken>,
+    #[account(
+        seeds = [b"pool_authority"],
+        bump
+    )]
+    pub pool_authority: SystemAccount<'info>,
 }
